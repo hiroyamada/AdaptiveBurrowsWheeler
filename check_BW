@@ -1,0 +1,5 @@
+dir=../out/production/INF558_Project/
+mkdir playground
+java -classpath $dir BWTransformer $1 > playground/BW
+java -classpath $dir BWDetransformer playground/BW > playground/BW_Detransformed
+diff $1 playground/BW_Detransformed
