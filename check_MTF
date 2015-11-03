@@ -1,0 +1,5 @@
+dir=../out/production/INF558_Project/
+
+java -classpath $dir MTFCoder $1 > playground/MTF
+java -classpath $dir MTFDecoder playground/MTF > playground/MTF_decoded
+diff $1 playground/MTF_decoded

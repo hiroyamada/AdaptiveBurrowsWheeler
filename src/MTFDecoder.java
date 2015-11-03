@@ -16,9 +16,12 @@ public class MTFDecoder {
         try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
             int nextByte;
             while ((nextByte = fileInputStream.read()) != -1) {
-                int printChar = characters.get(nextByte);
+//                int num = (int) 'b';
+//                System.out.println(num + " " + characters.get(num));
+//                System.out.println("nextByte is " + nextByte);
+                int printChar = characters.remove(nextByte);
+//                System.out.println("About to move " + printChar + "to head");
                 System.out.write(printChar);
-                characters.remove(nextByte);
                 characters.add(0, printChar);
             }
             System.out.flush();
