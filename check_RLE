@@ -1,0 +1,5 @@
+dir=../out/production/INF558_Project/
+
+java -classpath $dir rle.RunLengthEncoder $1 > playground/RLE
+java -classpath $dir rle.RunLengthDecoder playground/RLE > playground/RLE_decoded
+diff $1 playground/RLE_decoded
