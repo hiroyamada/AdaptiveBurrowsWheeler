@@ -1,5 +1,6 @@
 package util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -9,14 +10,19 @@ import java.io.IOException;
  */
 public class BinaryFileInputStream {
     private FileInputStream fileInputStream;
-    private int c; // current character
+    private int cFlipped; // current character flipped
     private int n; // number of bits that are read
 
     public BinaryFileInputStream(String s) throws IOException {
-        fileInputStream = new FileInputStream(s);
-        n = 0;
-        c = 0;
+        this(new FileInputStream(s));
     }
+
+    public BinaryFileInputStream(FileInputStream fileInputStream) throws IOException {
+        this.fileInputStream = fileInputStream;
+        n = 0;
+        cFlipped = 0;
+    }
+
 
     // returns k bits as an integer whose value is between 0 and 2^k-1,
     // at the end of file, this method returns -1
@@ -26,7 +32,7 @@ public class BinaryFileInputStream {
             b = read();
             if (b == -1)
                 break;
-            t ^= b << i;
+            t = (t << 1) | b;
         }
         if (i == 0)
             return -1;
@@ -38,14 +44,21 @@ public class BinaryFileInputStream {
     // or -1 at the end of file.
     public int read() throws IOException {
         if (n == 0) {
-            c = fileInputStream.read();
+            int c = fileInputStream.read();
+
             if (c == -1)
                 return -1;
             n = 8;
+
+            cFlipped = 0;
+            for (int i = 0; i < 8; i++) {
+                cFlipped = (cFlipped << 1) | (c & 1);
+                c >>= 1;
+            }
         }
-        --n;
-        int b = c & 1;
-        c >>= 1;
+        n--;
+        int b = cFlipped & 1;
+        cFlipped >>= 1;
         return b;
     }
 

@@ -13,22 +13,32 @@ public class BinaryFileOutputStream {
     private FileOutputStream fileOutputStream;
 
     public BinaryFileOutputStream(String s) throws IOException {
-        fileOutputStream = new FileOutputStream(s);
+        this(new FileOutputStream(s));
+    }
+
+    public BinaryFileOutputStream(FileOutputStream fileOutputStream) {
+        this.fileOutputStream = fileOutputStream;
         n = 0;
         c = 0;
     }
 
     // writes the  i least significant bits of c
     public void write(int c, int i) throws IOException {
-        for (; i > 0; --i) {
-            write(c & 1);
+        int cFlipped = 0;
+        for (int j = 0; j < i; j++) {
+            cFlipped = (cFlipped << 1) | (c & 1);
             c >>= 1;
+        }
+
+        for (int j = 0; j < i; j++) {
+            write(cFlipped & 1);
+            cFlipped >>= 1;
         }
     }
 
     // writes bit b
     public void write(int b) throws IOException {
-        c ^= (b << n);
+        c = (c << 1) | (b & 1);
         ++n;
         if (n == 8)
             flush();
@@ -44,6 +54,7 @@ public class BinaryFileOutputStream {
     }
 
     public void flush() throws IOException {
+        c <<= 8 - n;
         fileOutputStream.write(c);
         n = 0;
         c = 0;

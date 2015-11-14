@@ -1,14 +1,14 @@
 package adaptive_huffman;
 
 class Leaf extends Node {
-    private final Byte value;
+    private final Integer value;
 
-    public Leaf(int weight, Tree parent, Byte value) {
+    public Leaf(int weight, Tree parent, Integer value) {
         super(weight, parent);
         this.value = value;
     }
 
-    public byte getValue() {
+    public Integer getValue() {
         return value;
     }
 

@@ -64,12 +64,12 @@ public class RunLengthEncoder {
     }
 
     private static byte[] intToByteArray(int x) {
-        if (x < 0 || x > 257)
+        if (x < 0 || x > MAX_VALID_VALUE)
             throw new IllegalArgumentException("b must be a valid byte value. Got " + x);
 
         byte[] ret = new byte[2];
-        ret[0] = (byte) (x & 0xff);
-        ret[1] = (byte) ((x >> 8) & 0xff);
+        ret[1] = (byte) (x & 0xff);
+        ret[0] = (byte) ((x >> 8) & 0xff);
 
         return ret;
     }

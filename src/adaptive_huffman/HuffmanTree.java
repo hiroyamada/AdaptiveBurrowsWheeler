@@ -1,16 +1,16 @@
 package adaptive_huffman;
 
+import rle.RunLengthUtil;
 import util.BinaryFileInputStream;
 import util.BinaryFileOutputStream;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.*;
 
 class HuffmanTree {
     private Node root;
-    private HashMap<Byte, Node> lookup;
+    private HashMap<Integer, Node> lookup;
     private ArrayList<Node> gallegerOrder;
 
     public HuffmanTree() {
@@ -45,34 +45,32 @@ class HuffmanTree {
 
     public void encode(BufferedInputStream is, String outputFileName) throws IOException {
         BinaryFileOutputStream fs = new BinaryFileOutputStream(outputFileName);
-        // leave room for the byteCount
-        fs.write(0, 32);
-        int nextByteInt;
-        int byteCount = 0;
-        while ((nextByteInt = is.read()) != -1) {
-            if (byteCount == Integer.MAX_VALUE)
-                throw new IllegalArgumentException("sorry, file too big!");
-            byteCount++;
-            byte nextByte = (byte) nextByteInt;
-            Boolean[] code = codeFromByte(lookup.containsKey(nextByte) ? nextByte : null);
-            for (boolean b : code) {
-                fs.write(b ? 1 : 0);
-            }
-            if (!lookup.containsKey(nextByte))
-                fs.write(nextByteInt, 8);
+        int nextInt;
+        while ((nextInt = RunLengthUtil.readTwoBytes(is)) != -1) {
+            if (nextInt < 0 || nextInt > RunLengthUtil.MAX_VALID_VALUE)
+                throw new IllegalStateException("Attempting to write invalid value " + nextInt);
 
-            this.update(nextByte);
+            writeCodeForInt(nextInt, fs);
+            this.update(nextInt);
         }
+        writeCodeForInt(RunLengthUtil.EOF, fs);
         fs.close();
-
-        RandomAccessFile raf = new RandomAccessFile(outputFileName, "rw");
-        raf.seek(0);
-        raf.writeInt(byteCount);
-        raf.close();
     }
 
-    private Boolean[] codeFromByte(Byte b) {
-        Node n = lookup.get(b);
+    private void writeCodeForInt(int i, BinaryFileOutputStream fs) throws IOException {
+        Boolean[] code = codeFromByte(lookup.containsKey(i) ? i : null);
+        for (boolean b : code) {
+            fs.write(b ? 1 : 0);
+        }
+
+        System.out.println(i);
+
+        if (!lookup.containsKey(i))
+            fs.write(i, 9);
+    }
+
+    private Boolean[] codeFromByte(Integer i) {
+        Node n = lookup.get(i);
         List<Boolean> l = new LinkedList<>();
 
         while (n.getParent() != null) {
@@ -87,15 +85,8 @@ class HuffmanTree {
     }
 
     public void decode(String inputFileName, BinaryFileOutputStream fs) throws IOException {
-        // read the byte count using RandomAccessFile since BinaryFileStream stores bits in the
-        // reverse order.
-        RandomAccessFile raf = new RandomAccessFile(inputFileName, "r");
-        int byteCount = raf.readInt();
-        raf.close();
-
         BinaryFileInputStream fe = new BinaryFileInputStream(inputFileName);
-        fe.read(32);
-        for (int c = 0; c < byteCount; c++) {
+        while (true) {
             Node currentNode = this.root;
             while (currentNode instanceof Tree) {
                 Tree t = (Tree) currentNode;
@@ -114,28 +105,34 @@ class HuffmanTree {
 
             Leaf l = (Leaf) currentNode;
             if (l.isVoidSymbol()) {
-                byte nextByte = (byte) fe.read(8);
-//                System.out.println("new symbol: " + nextByte);
-                if (nextByte == -1)
-                    throw new IllegalStateException("not actually bad but most likely wrong");
-                this.update(nextByte);
-                fs.write(nextByte, 8);
+                int nextInt = fe.read(9);
+                System.out.println("new symbol: " + nextInt);
+                if (this.lookup.containsKey(nextInt))
+                    throw new IllegalStateException("received void symbol although we know the following symbol");
+                if (nextInt < -1 || nextInt > RunLengthUtil.MAX_VALID_VALUE)
+                    throw new IllegalStateException("read invalid character with value " + nextInt);
+
+                if (nextInt == RunLengthUtil.EOF)
+                    return;
+
+                this.update(nextInt);
+                fs.write(nextInt, 16);
             } else {
 //                System.out.println(l.getValue());
                 this.update(l.getValue());
-                fs.write(l.getValue(), 8);
+                fs.write(l.getValue(), 16);
             }
         }
     }
 
-    public void update(byte b) {
+    public void update(int i) {
         Node node;
-        if (this.lookup.containsKey(b)) {
-            node = lookup.get(b);
+        if (this.lookup.containsKey(i)) {
+            node = lookup.get(i);
         } else {
             Leaf voidLeaf = (Leaf) this.lookup.get(null);
-            Tree voidLeafParent = (Tree) voidLeaf.getParent();
-            Leaf newLeaf = new Leaf(1, null, b); // parent null for now
+            Tree voidLeafParent = voidLeaf.getParent();
+            Leaf newLeaf = new Leaf(1, null, i); // parent null for now
             Tree newTree = new Tree(1, voidLeafParent, newLeaf, voidLeaf);
             newLeaf.setParent(newTree);
             voidLeaf.setParent(newTree);
@@ -159,7 +156,7 @@ class HuffmanTree {
             gallegerOrder.add(voidIndex + 2, voidLeaf);
 //            System.out.println(Arrays.toString(gallegerOrder.toArray()));
 
-            this.lookup.put(b, newLeaf);
+            this.lookup.put(i, newLeaf);
             node = voidLeafParent;
         }
 
@@ -171,9 +168,9 @@ class HuffmanTree {
 //            System.out.println("blah");
 //            System.out.println(Arrays.toString(gallegerOrder.toArray()));
 
-            for (int i = 0; i < gallegerOrder.size(); i++) {
+            for (int c = 0; c < gallegerOrder.size(); c++) {
 //                System.out.println(i);
-                Node n = gallegerOrder.get(i);
+                Node n = gallegerOrder.get(c);
                 if (n.getWeight() == node.getWeight()) {
 //                        System.out.println("bleh");
 //                        System.out.println(n);
@@ -192,14 +189,14 @@ class HuffmanTree {
                             throw new IllegalStateException("trying to swap child and parent");
                         }
 
-                        Tree originalNParent = (Tree) n.getParent();
-                        Tree originalNodeParent = (Tree) node.getParent();
+                        Tree originalNParent = n.getParent();
+                        Tree originalNodeParent = node.getParent();
 
                         replaceChildOrUpdateRoot(originalNParent, n, node);
                         replaceChildOrUpdateRoot(originalNodeParent, node, n);
 
                         int leafIndex = gallegerOrder.indexOf(node);
-                        Collections.swap(gallegerOrder, leafIndex, i);
+                        Collections.swap(gallegerOrder, leafIndex, c);
                     }
                     node.incrementWeight();
                     node = node.getParent();
@@ -214,8 +211,8 @@ class HuffmanTree {
         }
 //            System.out.println("out of node null loop");
 
-        for (int i = 0; i < gallegerOrder.size() - 1; i++) {
-            if (gallegerOrder.get(i).getWeight() < gallegerOrder.get(i + 1).getWeight()) {
+        for (int c = 0; c < gallegerOrder.size() - 1; c++) {
+            if (gallegerOrder.get(c).getWeight() < gallegerOrder.get(c + 1).getWeight()) {
                 System.out.println(Arrays.toString(gallegerOrder.toArray()));
                 throw new IllegalStateException("galleger order broken");
             }
