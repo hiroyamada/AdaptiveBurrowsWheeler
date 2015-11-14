@@ -32,24 +32,4 @@ public class BinaryFileOutputStreamTest {
 
         verify(fileOutputStream).write(0b10000000);
     }
-
-    @org.junit.Test
-    public void testWrite1() throws Exception {
-
-    }
-
-    @org.junit.Test
-    public void testClose() throws Exception {
-
-    }
-
-    @org.junit.Test
-    public void testEmptyBuffer() throws Exception {
-
-    }
-
-    @org.junit.Test
-    public void testFlush() throws Exception {
-
-    }
 }

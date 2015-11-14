@@ -8,7 +8,7 @@ import util.IllegalCharacterException;
 import java.io.IOException;
 
 public class HuffmanAlphabetUtil implements AlphabetUtil {
-    static final int EOF = 256;
+    private static final int EOF = 256;
 
     private static final int MAX_VALID_VALUE = 256;
 
@@ -75,6 +75,5 @@ public class HuffmanAlphabetUtil implements AlphabetUtil {
 
     @Override
     public void onEOF(BinaryFileOutputStream binaryFileOutputStream) throws IOException, IllegalCharacterException {
-        return;
     }
 }

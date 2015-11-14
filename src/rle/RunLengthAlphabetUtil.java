@@ -10,7 +10,7 @@ import java.io.IOException;
 public class RunLengthAlphabetUtil implements AlphabetUtil {
     static final int RUNA = 256;
     static final int RUNB = 257;
-    static final int EOF = 258;
+    private static final int EOF = 258;
 
     private static final int MAX_VALID_VALUE = 258;
 

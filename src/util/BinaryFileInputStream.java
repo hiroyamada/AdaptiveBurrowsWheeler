@@ -1,6 +1,5 @@
 package util;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -17,7 +16,7 @@ public class BinaryFileInputStream implements AutoCloseable{
         this(new FileInputStream(s));
     }
 
-    public BinaryFileInputStream(FileInputStream fileInputStream) throws IOException {
+    public BinaryFileInputStream(FileInputStream fileInputStream) {
         this.fileInputStream = fileInputStream;
         n = 0;
         cFlipped = 0;

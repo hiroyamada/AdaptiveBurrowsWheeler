@@ -30,8 +30,6 @@ class HuffmanTree {
         } else if (parent.getRight() == currentChild) {
             parent.setRight(newChild);
         } else {
-//            System.out.println(parent);
-//            System.out.println(currentChild);
             throw new IllegalStateException("parent does not have specified child");
         }
     }
@@ -55,7 +53,6 @@ class HuffmanTree {
     }
 
     private void writeCodeForInt(int i, BinaryFileOutputStream fs) throws IOException, IllegalCharacterException {
-//        System.out.println("Write : " + i);
         Boolean[] code = codeFromByte(lookup.containsKey(i) ? i : null);
         for (boolean b : code) {
             fs.write(b ? 1 : 0);
@@ -101,7 +98,6 @@ class HuffmanTree {
             Leaf l = (Leaf) currentNode;
             if (l.isVoidSymbol()) {
                 int nextInt = alphabetUtil.readNextCharacterFromCode(fe);
-//                System.out.println("new symbol: " + nextInt);
                 if (this.lookup.containsKey(nextInt))
                     throw new IllegalStateException("received void symbol although we know the following symbol");
 
@@ -114,17 +110,14 @@ class HuffmanTree {
 
                 alphabetUtil.writeCharacterToSource(nextInt, fs);
 
-//                fs.write(nextInt, 16);
             } else {
-//                System.out.println(l.getValue());
                 this.update(l.getValue());
                 alphabetUtil.writeCharacterToSource(l.getValue(), fs);
-//                fs.write(l.getValue(), 16);
             }
         }
     }
 
-    public void update(int i) {
+    private void update(int i) {
         Node node;
         if (this.lookup.containsKey(i)) {
             node = lookup.get(i);
@@ -147,32 +140,21 @@ class HuffmanTree {
                 this.root = newTree;
             }
 
-//            replaceChildOrUpdateRoot(voidLeafParent, voidLeaf, newTree);
-
             int voidIndex = gallegerOrder.indexOf(voidLeaf);
             gallegerOrder.set(voidIndex, newTree);
             gallegerOrder.add(voidIndex + 1, newLeaf);
             gallegerOrder.add(voidIndex + 2, voidLeaf);
-//            System.out.println(Arrays.toString(gallegerOrder.toArray()));
 
             this.lookup.put(i, newLeaf);
             node = voidLeafParent;
         }
 
-//            System.out.println("here");
         while (node != null) {
             Node initialNode = node;
-//            System.out.println(node);
-//            System.out.println(node.getParent());
-//            System.out.println("blah");
-//            System.out.println(Arrays.toString(gallegerOrder.toArray()));
 
             for (int c = 0; c < gallegerOrder.size(); c++) {
-//                System.out.println(i);
                 Node n = gallegerOrder.get(c);
                 if (n.getWeight() == node.getWeight()) {
-//                        System.out.println("bleh");
-//                        System.out.println(n);
                     if (n != node) {
 
                         // The algorithm will try to swap a child and parent. This is expected behavior
@@ -203,12 +185,9 @@ class HuffmanTree {
                 }
             }
             if (initialNode == node) {
-//                System.out.println(Arrays.toString(gallegerOrder.toArray()));
-//                System.out.println(initialNode);
                 throw new IllegalStateException("something went wrong");
             }
         }
-//            System.out.println("out of node null loop");
 
         for (int c = 0; c < gallegerOrder.size() - 1; c++) {
             if (gallegerOrder.get(c).getWeight() < gallegerOrder.get(c + 1).getWeight()) {

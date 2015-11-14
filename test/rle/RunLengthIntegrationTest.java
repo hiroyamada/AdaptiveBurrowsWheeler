@@ -1,10 +1,6 @@
 package rle;
 
-import static org.mockito.Mockito.*;
-
-
 import org.junit.Test;
-import util.BinaryFileInputStream;
 
 import java.io.FileInputStream;
 

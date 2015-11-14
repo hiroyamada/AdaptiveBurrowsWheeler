@@ -34,7 +34,7 @@ public class RunLengthHuffmanIntegrationTest {
         compareFiles(ORIGINAL_FILE_PATH, RUN_LENGTH_DECODED_FILE_PATH);
     }
 
-    public void compareFiles(String s1, String s2) throws Exception {
+    private void compareFiles(String s1, String s2) throws Exception {
         FileInputStream f1 = new FileInputStream(s1);
         FileInputStream f2 = new FileInputStream(s2);
 

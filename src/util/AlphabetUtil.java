@@ -5,7 +5,7 @@ import java.io.IOException;
 public interface AlphabetUtil {
     /**
      * Determines whether the passed character denotes an EOF in this alphabet.
-     * @param character
+     * @param character the character to be examined.
      * @return Whether the character denotes an EOF.
      */
     boolean isEOF(int character);

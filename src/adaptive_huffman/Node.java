@@ -4,7 +4,7 @@ public abstract class Node {
     private int weight;
     private Tree parent;
 
-    public Node(int weight, Tree parent) {
+    Node(int weight, Tree parent) {
         this.weight = weight;
         this.parent = parent;
     }
@@ -34,7 +34,7 @@ public abstract class Node {
         return super.toString() + " " + (this.parent == null ? null : this.parent.getAddress()) + " " + this.weight;
     }
 
-    public String getAddress() {
+    String getAddress() {
         return super.toString();
     }
 }
