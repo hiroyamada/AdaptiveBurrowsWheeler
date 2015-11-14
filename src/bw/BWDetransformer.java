@@ -2,6 +2,7 @@ package bw;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -10,8 +11,12 @@ import java.util.HashMap;
 public class BWDetransformer {
 
     public static void main(String[] args) {
-        String fileName = args[0];
-        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
+        bwDetransform(args[0], args[1]);
+    }
+
+    public static void bwDetransform(String inPath, String outPath) {
+        try (FileInputStream fileInputStream = new FileInputStream(inPath);
+             FileOutputStream fileOutputStream = new FileOutputStream(outPath)) {
             boolean endReached = false;
             while (!endReached) {
                 byte[] originalIndexBytes = new byte[4];
@@ -64,8 +69,7 @@ public class BWDetransformer {
                     }
                     result[i] = L[previousIndex];
                 }
-                System.out.write(result);
-                System.out.flush();
+                fileOutputStream.write(result);
             }
 
         } catch (FileNotFoundException e) {

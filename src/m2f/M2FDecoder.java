@@ -2,31 +2,30 @@ package m2f;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 
 public class M2FDecoder {
     public static void main(String[] args) {
-        String fileName = args[0];
+        m2fDecode(args[0], args[1]);
+    }
 
+    public static void m2fDecode(String inPath, String outPath) {
         LinkedList<Integer> characters = new LinkedList<>();
 
         for (int i = 0; i < 256; i++) {
             characters.add(i);
         }
 
-        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
+        try (FileInputStream fileInputStream = new FileInputStream(inPath);
+             FileOutputStream fileOutputStream = new FileOutputStream(outPath)) {
             int nextByte;
             while ((nextByte = fileInputStream.read()) != -1) {
-//                int num = (int) 'b';
-//                System.out.println(num + " " + characters.get(num));
-//                System.out.println("nextByte is " + nextByte);
                 int printChar = characters.remove(nextByte);
-//                System.out.println("About to move " + printChar + "to head");
-                System.out.write(printChar);
+                fileOutputStream.write(printChar);
                 characters.add(0, printChar);
             }
-            System.out.flush();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -4,10 +4,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.FileOutputStream;
 
-import static org.junit.Assert.*;
-
 public class BinaryFileOutputStreamTest {
-
     @org.junit.Test
     public void testWrite() throws Exception {
         FileOutputStream fileOutputStream = mock(FileOutputStream.class);

@@ -1,10 +1,10 @@
 package adaptive_huffman;
 
-import rle.RunLengthUtil;
+import util.AlphabetUtil;
 import util.BinaryFileInputStream;
 import util.BinaryFileOutputStream;
+import util.IllegalCharacterException;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -12,13 +12,15 @@ class HuffmanTree {
     private Node root;
     private HashMap<Integer, Node> lookup;
     private ArrayList<Node> gallegerOrder;
+    private AlphabetUtil alphabetUtil;
 
-    public HuffmanTree() {
+    public HuffmanTree(AlphabetUtil alphabetUtil) {
         this.root = new Leaf(0, null, null); // voidSymbol
         this.lookup = new HashMap<>();
         this.lookup.put(null, this.root);
         this.gallegerOrder = new ArrayList<>();
         this.gallegerOrder.add(this.root);
+        this.alphabetUtil = alphabetUtil;
     }
 
     private void replaceChildWith(Tree parent, Node currentChild, Node newChild) {
@@ -43,30 +45,24 @@ class HuffmanTree {
         }
     }
 
-    public void encode(BufferedInputStream is, String outputFileName) throws IOException {
-        BinaryFileOutputStream fs = new BinaryFileOutputStream(outputFileName);
+    public void encode(BinaryFileInputStream is, BinaryFileOutputStream fs) throws IOException, IllegalCharacterException {
         int nextInt;
-        while ((nextInt = RunLengthUtil.readTwoBytes(is)) != -1) {
-            if (nextInt < 0 || nextInt > RunLengthUtil.MAX_VALID_VALUE)
-                throw new IllegalStateException("Attempting to write invalid value " + nextInt);
-
+        while ((nextInt = alphabetUtil.readNextCharacterFromSource(is)) != alphabetUtil.getEOF()) {
             writeCodeForInt(nextInt, fs);
             this.update(nextInt);
         }
-        writeCodeForInt(RunLengthUtil.EOF, fs);
-        fs.close();
+        writeCodeForInt(alphabetUtil.getEOF(), fs);
     }
 
-    private void writeCodeForInt(int i, BinaryFileOutputStream fs) throws IOException {
+    private void writeCodeForInt(int i, BinaryFileOutputStream fs) throws IOException, IllegalCharacterException {
+//        System.out.println("Write : " + i);
         Boolean[] code = codeFromByte(lookup.containsKey(i) ? i : null);
         for (boolean b : code) {
             fs.write(b ? 1 : 0);
         }
 
-        System.out.println(i);
-
         if (!lookup.containsKey(i))
-            fs.write(i, 9);
+            alphabetUtil.writeCharacterToCode(i, fs);
     }
 
     private Boolean[] codeFromByte(Integer i) {
@@ -84,8 +80,7 @@ class HuffmanTree {
         return returnArray;
     }
 
-    public void decode(String inputFileName, BinaryFileOutputStream fs) throws IOException {
-        BinaryFileInputStream fe = new BinaryFileInputStream(inputFileName);
+    public void decode(BinaryFileInputStream fe, BinaryFileOutputStream fs) throws IOException, IllegalCharacterException {
         while (true) {
             Node currentNode = this.root;
             while (currentNode instanceof Tree) {
@@ -105,22 +100,26 @@ class HuffmanTree {
 
             Leaf l = (Leaf) currentNode;
             if (l.isVoidSymbol()) {
-                int nextInt = fe.read(9);
-                System.out.println("new symbol: " + nextInt);
+                int nextInt = alphabetUtil.readNextCharacterFromCode(fe);
+//                System.out.println("new symbol: " + nextInt);
                 if (this.lookup.containsKey(nextInt))
                     throw new IllegalStateException("received void symbol although we know the following symbol");
-                if (nextInt < -1 || nextInt > RunLengthUtil.MAX_VALID_VALUE)
-                    throw new IllegalStateException("read invalid character with value " + nextInt);
-
-                if (nextInt == RunLengthUtil.EOF)
-                    return;
 
                 this.update(nextInt);
-                fs.write(nextInt, 16);
+
+                if (alphabetUtil.isEOF(nextInt)) {
+                    alphabetUtil.onEOF(fs);
+                    return;
+                }
+
+                alphabetUtil.writeCharacterToSource(nextInt, fs);
+
+//                fs.write(nextInt, 16);
             } else {
 //                System.out.println(l.getValue());
                 this.update(l.getValue());
-                fs.write(l.getValue(), 16);
+                alphabetUtil.writeCharacterToSource(l.getValue(), fs);
+//                fs.write(l.getValue(), 16);
             }
         }
     }

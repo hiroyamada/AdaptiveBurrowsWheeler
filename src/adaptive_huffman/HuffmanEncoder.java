@@ -6,20 +6,23 @@ import util.BinaryFileInputStream;
 import util.BinaryFileOutputStream;
 import util.IllegalCharacterException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class HuffmanDecoder {
+public class HuffmanEncoder {
     public static void main(String[] args) {
-        huffmanDecode(args[0], args[1], new RunLengthAlphabetUtil());
+        huffmanEncode(args[0], args[1], new RunLengthAlphabetUtil());
     }
 
-    public static void huffmanDecode(String inPath, String outPath, AlphabetUtil alphabetUtil) {
+    public static void huffmanEncode(String inPath, String outPath, AlphabetUtil alphabetUtil) {
         try (BinaryFileInputStream input = new BinaryFileInputStream(inPath);
              BinaryFileOutputStream output = new BinaryFileOutputStream(outPath)) {
-            new HuffmanTree(alphabetUtil).decode(input, output);
-        } catch (IllegalCharacterException e) {
+            new HuffmanTree(alphabetUtil).encode(input, output);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalCharacterException e) {
             e.printStackTrace();
         }
     }

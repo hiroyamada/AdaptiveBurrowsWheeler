@@ -1,6 +1,9 @@
 package rle;
 
-import static rle.RunLengthUtil.*;
+import util.BinaryFileOutputStream;
+import util.IllegalCharacterException;
+
+import static rle.RunLengthAlphabetUtil.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,10 +11,15 @@ import java.io.IOException;
 
 
 public class RunLengthEncoder {
-    public static void main(String[] args) {
-        String fileName = args[0];
+    private static RunLengthAlphabetUtil alphabetUtil = new RunLengthAlphabetUtil();
 
-        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
+    public static void main(String[] args) {
+        runLengthEncode(args[0], args[1]);
+    }
+
+    public static void runLengthEncode(String inPath, String outPath) {
+        try (FileInputStream fileInputStream = new FileInputStream(inPath);
+             BinaryFileOutputStream binaryFileOutputStream = new BinaryFileOutputStream(outPath)) {
             int prevByte = -1;
             int prevCount = 0;
             int nextByte;
@@ -19,26 +27,29 @@ public class RunLengthEncoder {
                 if (nextByte == prevByte) {
                     prevCount++;
                 } else {
-                    writePrevious(prevByte, prevCount);
+                    writePrevious(prevByte, prevCount, binaryFileOutputStream);
                     prevByte = nextByte;
                     prevCount = 1;
                 }
             }
-            writePrevious(prevByte, prevCount);
-            System.out.flush();
+            writePrevious(prevByte, prevCount, binaryFileOutputStream);
+            alphabetUtil.writeCharacterToCode(alphabetUtil.getEOF(), binaryFileOutputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalCharacterException e) {
+            e.printStackTrace();
         }
     }
 
-    private static void writePrevious(int prevByte, int prevCount) throws IOException {
+    private static void writePrevious(int prevByte, int prevCount, BinaryFileOutputStream output)
+            throws IOException, IllegalCharacterException {
         if (prevCount >= 1) {
-            System.out.write(intToByteArray(prevByte));
+            alphabetUtil.writeCharacterToCode(prevByte, output);
             if (prevCount >= 2) {
                 for (int i : intToRle(prevCount))
-                    System.out.write(intToByteArray(i));
+                    alphabetUtil.writeCharacterToCode(i, output);
             }
         }
     }
@@ -61,16 +72,5 @@ public class RunLengthEncoder {
             currentPlace /= 2;
         }
         return res;
-    }
-
-    private static byte[] intToByteArray(int x) {
-        if (x < 0 || x > MAX_VALID_VALUE)
-            throw new IllegalArgumentException("b must be a valid byte value. Got " + x);
-
-        byte[] ret = new byte[2];
-        ret[1] = (byte) (x & 0xff);
-        ret[0] = (byte) ((x >> 8) & 0xff);
-
-        return ret;
     }
 }

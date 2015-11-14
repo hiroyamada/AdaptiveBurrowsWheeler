@@ -7,7 +7,7 @@ import java.io.IOException;
  * Inspired by code written by Prof. Jean-Pierre Tillich.
  * Translated class, method, and variable names into English from French.
  */
-public class BinaryFileOutputStream {
+public class BinaryFileOutputStream implements AutoCloseable {
     private int c; // current character
     private int n; // number of bits that are written
     private FileOutputStream fileOutputStream;

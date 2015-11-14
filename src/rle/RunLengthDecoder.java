@@ -1,46 +1,55 @@
 package rle;
 
-import static rle.RunLengthUtil.*;
+import util.BinaryFileInputStream;
+import util.IllegalCharacterException;
 
-import java.io.FileInputStream;
+import static rle.RunLengthAlphabetUtil.*;
+
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RunLengthDecoder {
-    public static void main(String[] args) {
-        String fileName = args[0];
+    private static RunLengthAlphabetUtil alphabetUtil = new RunLengthAlphabetUtil();
 
-        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
+    public static void main(String[] args) {
+        runLengthDecode(args[0], args[1]);
+    }
+
+    public static void runLengthDecode(String inPath, String outPath) {
+        try (BinaryFileInputStream fileInputStream = new BinaryFileInputStream(inPath);
+             FileOutputStream fileOutputStream = new FileOutputStream(outPath)) {
             int currentCharacter = -1;
             int nextByte;
             List<Integer> counter = new ArrayList<>();
-            while ((nextByte = readTwoBytes(fileInputStream)) != -1) {
+            while ((nextByte = alphabetUtil.readNextCharacterFromSource(fileInputStream)) != alphabetUtil.getEOF()) {
                 if (nextByte == RUNA || nextByte == RUNB) {
                     counter.add(nextByte);
                 } else {
-                    writeCurrentCharacters(counter, currentCharacter);
+                    writeCurrentCharacters(counter, currentCharacter, fileOutputStream);
                     currentCharacter = nextByte;
                     counter.clear();
                 }
             }
-            writeCurrentCharacters(counter, currentCharacter);
-            System.out.flush();
+            writeCurrentCharacters(counter, currentCharacter, fileOutputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalCharacterException e) {
+            e.printStackTrace();
         }
     }
 
-    private static void writeCurrentCharacters(List<Integer> counter, int currentCharacter) {
+    private static void writeCurrentCharacters(List<Integer> counter, int currentCharacter, FileOutputStream fileOutputStream) throws IOException {
         if (counter.size() == 0 && currentCharacter != -1) {
-            System.out.write(currentCharacter);
+            fileOutputStream.write(currentCharacter);
         }
 
         for (int i = 0; i < rleToInt(counter); i++) {
-            System.out.write(currentCharacter);
+            fileOutputStream.write(currentCharacter);
         }
     }
 

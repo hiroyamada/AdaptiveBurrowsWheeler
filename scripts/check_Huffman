@@ -1,5 +1,5 @@
 dir=../out/production/INF558_Project/
 mkdir playground
-java -classpath $dir adaptive_huffman.HuffmanCoder $1 playground/HuffmanCoded
+java -classpath $dir adaptive_huffman.HuffmanEncoder $1 playground/HuffmanCoded
 java -classpath $dir adaptive_huffman.HuffmanDecoder playground/HuffmanCoded playground/HuffmanDecoded
 diff $1 playground/HuffmanDecoded
