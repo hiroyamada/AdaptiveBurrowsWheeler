@@ -1,4 +1,4 @@
-dir=../out/production/INF558_Project/
+dir=../out/production/AdaptiveBurrowsWheeler/
 mkdir playground
 java -classpath $dir adaptive_huffman.HuffmanEncoder $1 playground/HuffmanCoded
 java -classpath $dir adaptive_huffman.HuffmanDecoder playground/HuffmanCoded playground/HuffmanDecoded

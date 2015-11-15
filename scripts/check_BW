@@ -1,4 +1,4 @@
-dir=../out/production/INF558_Project/
+dir=../out/production/AdaptiveBurrowsWheeler/
 mkdir playground
 java -classpath $dir bw.BWTransformer $1 > playground/BW
 java -classpath $dir bw.BWDetransformer playground/BW > playground/BW_Detransformed

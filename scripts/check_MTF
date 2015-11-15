@@ -1,4 +1,4 @@
-dir=../out/production/INF558_Project/
+dir=../out/production/AdaptiveBurrowsWheeler/
 
 java -classpath $dir m2f.M2FEncoder $1 > playground/MTF
 java -classpath $dir m2f.M2FDecoder playground/MTF > playground/MTF_decoded

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Change this to appropriate class path!
-dir=../out/production/INF558_Project/
+dir=../out/production/AdaptiveBurrowsWheeler/
 
 MODE="encode"
 while getopts "d" opt; do

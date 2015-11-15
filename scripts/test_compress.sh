@@ -1,4 +1,4 @@
-dir=../out/production/INF558_Project/
+dir=../out/production/AdaptiveBurrowsWheeler/
 rm -rf playground
 mkdir playground
 

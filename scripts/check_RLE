@@ -1,4 +1,4 @@
-dir=../out/production/INF558_Project/
+dir=../out/production/AdaptiveBurrowsWheeler/
 
 java -classpath $dir rle.RunLengthEncoder $1 > playground/RLE
 java -classpath $dir rle.RunLengthDecoder playground/RLE > playground/RLE_decoded
