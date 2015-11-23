@@ -33,7 +33,7 @@ public class BWDetransformer {
                 int numRead = fileInputStream.read(L);
 
                 if (numRead == -1)
-                    throw new IllegalStateException("Original Index found but not content.");
+                    throw new IllegalStateException("Original Index found but content not found.");
                 if (numRead != BWTransformer.N) {
                     endReached = true;
                     L = Arrays.copyOfRange(L, 0, numRead);

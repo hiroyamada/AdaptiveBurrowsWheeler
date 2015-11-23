@@ -55,6 +55,7 @@ public class AdaptiveBurrowsWheeler {
     }
 
     public static void encode(String inPath, String outPath, boolean withRLE) {
+        System.out.println("encoding " + (withRLE ? "with RLE..." : "without RLE..."));
         BWTransformer.bwTransform(inPath, BW_TRANSFORMED_PATH);
         M2FEncoder.m2fEncode(BW_TRANSFORMED_PATH, M2F_ENCODED_PATH);
 
@@ -67,13 +68,17 @@ public class AdaptiveBurrowsWheeler {
     }
 
     public static void decode(String inPath, String outPath, boolean withRLE) {
+        System.out.println("decoding " + (withRLE ? "with RLE..." : "without RLE..."));
+
+
         if (withRLE) {
             HuffmanDecoder.huffmanDecode(inPath, HUFFMAN_DECODED_PATH, new RunLengthAlphabetUtil());
             RunLengthDecoder.runLengthDecode(HUFFMAN_DECODED_PATH, RUN_LENGTH_DECODED_PATH);
+            M2FDecoder.m2fDecode(RUN_LENGTH_DECODED_PATH, M2F_DECODED_PATH);
         } else {
             HuffmanDecoder.huffmanDecode(inPath, HUFFMAN_DECODED_PATH, new HuffmanAlphabetUtil());
+            M2FDecoder.m2fDecode(HUFFMAN_DECODED_PATH, M2F_DECODED_PATH);
         }
-        M2FDecoder.m2fDecode(RUN_LENGTH_DECODED_PATH, M2F_DECODED_PATH);
         BWDetransformer.bwDetransform(M2F_DECODED_PATH, outPath);
     }
 

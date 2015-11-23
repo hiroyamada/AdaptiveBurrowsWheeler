@@ -2,9 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open('results', 'r') as f:
-    for y in range(0, 10):
-        f.readline()
+with open('result_image', 'r') as f:
+    for y in range(0, 1):
         line = f.readline()
         total = line.split()[4]
         f.readline()
@@ -17,4 +16,5 @@ with open('results', 'r') as f:
             values[line[8][line[8].index('_') + 1:]] = int(line[4])
         plt.bar(range(len(values)), sorted(values.values()), align='center')
         plt.xticks(range(len(values)), sorted(values, key=values.get))
-        plt.savefig("image" + str(y))
+        # plt.savefig("image" + str(y))
+        plt.show()

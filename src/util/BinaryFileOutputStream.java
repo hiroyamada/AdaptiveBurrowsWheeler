@@ -54,6 +54,8 @@ public class BinaryFileOutputStream implements AutoCloseable {
     }
 
     public void flush() throws IOException {
+        if (n == 0)
+            return;
         c <<= 8 - n;
         fileOutputStream.write(c);
         n = 0;
